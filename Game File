@@ -1,0 +1,322 @@
+//libraries called and used
+  #include <Adafruit_CircuitPlayground.h>
+  #include <AsyncDelay.h>
+  #include <Wire.h>
+  #include <SPI.h>
+
+//difficulty choice with button inputs
+  int dif;
+  bool leftButtonPressed;
+  bool rightButtonPressed;
+
+//the action done for the pattern and the correct action
+  bool action;
+  bool actionCor;
+
+//position variables
+  float X, Y;
+  float patX, patY;
+
+//Delay until inputs are taken
+  AsyncDelay delay_2s;
+
+//speaker values
+  const uint8_t spINPUT[]     PROGMEM = {0x23,0x58,0x3A,0x90,0xAB,0x56,0x6F,0x6F,0x79,0x4B,0x19,0x5A,0xE7,0xA2,0xE1,0x15,0x21,0xB1,0x1A,0xEE,0x5A,0x5C,0x24,0x45,0x5B,0x68,0x0B,0x49,0x91,0x14,0x6B,0xA5,0xC5,0xA5,0x49,0x72,0x2D,0x95,0x17,0x92,0x0B,0xE5,0xEE,0x22,0xB2,0x01,0x04,0x10,0xB5,0xA6,0x02,0x72,0x34,0x4D,0x55,0x9C,0xC1,0xAA,0x35,0x39,0xD5,0xA1,0xBB,0x98,0xF7,0xE8,0xD4,0xC6,0xA4,0x85,0x39,0x73,0xC8,0x20,0x94,0xBB,0x8B,0xC8,0x06,0x00,0x05,0x5C,0x91,0xA6,0x01,0x04,0x54,0xDF,0xF0,0x65,0x49};
+  const uint8_t spA[]         PROGMEM = {0x27,0x5A,0x3E,0x95,0xDB,0xDB,0x9C,0x68,0xDA,0x26,0x6D,0xAF,0x75,0xA2,0xA5,0x8B,0xBD,0xBD,0xF6,0x89,0x86,0x4F,0xCA,0xF2,0xDA,0x27,0xEA,0xC1,0xB8,0x2A,0xEB,0x9C,0xB8,0x07,0xE5,0xAA,0xAA,0x72,0xD2,0x1E,0x45,0xAA,0xBA,0xCA,0x2A,0x47,0x13,0xF1,0xEA,0x29,0xAB,0x9B,0xD9,0x59,0xA6,0x96,0x8C,0x7E,0x14,0x23,0x99,0x9A,0x3D,0xC6,0x1E,0x98,0x73,0xAB,0x52,0x1B,0x47,0x12,0xF2,0xAE,0xD9,0x75,0x2C,0x63,0x4F,0xC4,0x59,0x53,0xE5,0xFF,0x39,0x25,0x79,0x61,0x41};
+  const uint8_t spLEVEL[]     PROGMEM = {0xA5,0x1E,0x40,0x27,0x84,0xF3,0x94,0xB6,0x03,0x5F,0x65,0x8F,0x9B,0xBA,0x09,0x64,0x1D,0xA3,0xCE,0x6A,0x2B,0xEB,0x34,0xB5,0xC7,0xAB,0xAE,0x62,0x4C,0x23,0x67,0xAF,0xBA,0xE8,0x11,0xF7,0x5C,0xBC,0xEA,0x62,0x4B,0x43,0x63,0xF1,0xAA,0x53,0xF0,0x0A,0xCD,0xD9,0x66,0xCC,0x22,0x2C,0x95,0xDD,0xB8,0xB1,0x09,0x17,0x0B,0xB3,0x1D,0xF6,0x22,0x23,0xD3,0x39,0x96,0x99,0x6D,0xEB,0x10,0x89,0xC5,0x65,0x09,0xFA,0xDA,0x44,0x7A,0xB7,0x2D,0xF1,0x1D,0x17,0xCD,0x52,0xF6,0xC4,0xAE,0x9D,0xA5,0x6F,0x3A,0x12,0xBD,0x76,0x96,0x2C,0xE9,0x8C,0xFC,0xCB,0x59,0xBB,0xB8,0x3B,0xCA,0xED,0x62,0xEE,0xA4,0x1E,0xEF,0x3E,0x9D,0xBC,0xF5,0xFF,0x03};
+  const uint8_t spYOU_WIN[]           PROGMEM ={0x26,0x2B,0x82,0x54,0x76,0x4B,0xA7,0x76,0x04,0x14,0xB6,0xBA,0x5D,0xBA,0x9E,0x48,0x30,0xEA,0xD6,0x69,0x6A,0x73,0x01,0xF7,0xB7,0xA7,0x6A,0xAD,0x0C,0x0C,0xFB,0x8F,0x2C,0x5A,0x55,0x2D,0xFD,0x52,0x62,0x6E,0xBA,0x06,0xA5,0x59,0x8E,0x72,0x1C,0x13,0x97,0x31,0xF7,0x61,0x2C,0x4D,0x5B,0x6E,0x64,0x8E,0x19,0x66,0x3D,0x55,0x16,0x9E,0x56,0xD8,0xF5,0xD4,0x35,0xA6,0x6A,0xC8,0x9A,0xDB,0xDC,0xF6,0xB6,0xB7,0x4D,0x9D,0xB4,0x66,0xEE,0xDE,0xD8,0xB7,0xAA,0xA5,0xC1,0xC2,0xB2,0x22,0xAB,0x86,0x7A,0x2F,0x8D,0x91,0x2D,0x6A,0x94,0x23,0x3D,0xDB,0x8E,0xA8,0xB0,0xCB,0x4E,0x2B,0x39,0x0F,0x00,0x00};
+  const uint8_t spTRY_AGAIN[]         PROGMEM ={0x0E,0x28,0xA1,0xA2,0x02,0x0E,0x28,0x6D,0x6C,0xC4,0xB6,0xAB,0xA5,0x8B,0xDB,0x15,0xEB,0xEE,0x5E,0xCE,0x6B,0x4E,0xE2,0xED,0x84,0xB9,0x26,0xBE,0xD1,0x0D,0x57,0x10,0x8B,0x9B,0xEB,0x44,0xD9,0xC1,0x0E,0x57,0x1C,0x8B,0x99,0xDB,0x46,0x39,0x69,0x8E,0xA6,0xEE,0x35,0x7B,0x64,0x35,0x26,0xF2,0x44,0xA7,0x94,0xE7,0x24,0x60,0x1B,0x15,0x55,0xCE,0x45,0x66,0x35,0x3B,0x29,0x45,0xD1,0xCC,0x6E,0xE1,0x66,0x64,0xD5,0x39,0x53,0x74,0x9B,0x13,0xE7,0xE0,0xAC,0x55,0xB3,0x4F,0x5C,0x5D,0x98,0x45,0xCC,0xBE,0xD1,0x8D,0x6E,0x72,0xF3,0x5B,0xAD,0x36,0x46,0x4F,0x95,0x8C,0x32,0xFB,0xDE,0x87,0xDE,0x66,0x35,0xD7,0x70,0xE5,0x06,0x4F,0x53,0xCC,0xBC,0x95,0x1A,0xA4,0xD5,0x08,0x19,0xC7,0x0F};
+
+//melody values
+  int c_major[8] = {60, 62, 64, 65, 67, 69, 71, 72};
+  float midi[127];
+  int A_four = 440;
+
+//Settup values and calling of function from AdaFruit CircuitPlayground library
+void setup() {
+  
+  CircuitPlayground.begin();
+  generateMIDI();
+
+  //The Speaker for choosing difficulty
+  CircuitPlayground.speaker.say(spINPUT);
+  CircuitPlayground.speaker.say(spA);
+  CircuitPlayground.speaker.say(spLEVEL);
+  
+  //Seeding random for the pattern  
+  randomSeed(analogRead(A0));
+}
+
+//Main function for the game
+void loop() {
+  //Calling difficulty while it is equal to 0
+  do{
+    dif = difficulty();
+  }while(dif == 0);
+
+  //Setting the length of the pattern and inputs for the Y and X axis
+  float pattern[dif];
+  float positionY[dif];
+  float positionX[dif];
+  float positionXIn[dif];
+  float positionYIn[dif];
+
+  //setting the random positions for the pattern
+  for(int i = 0; i < dif; i++){
+    pattern[i] = random(0,4);
+  }
+
+  //Repeating the sequence from value 1 to the end of the pattern
+  for(int i = 0; i < dif; ++i){
+    
+    //Starting the sequence at value 1 to the most current value of the pattern
+    for(int j = 0; j <= i; ++j){
+      
+      //Showing the lights for the pattern at the position of the pattern, as well as setting X and Y
+      position(pattern[j]);
+      positionY[j] = patY;
+      positionX[j] = patX;
+
+      //Clearing the lights for the next part of the sequence
+      delay(500);
+      CircuitPlayground.clearPixels();
+      delay(100);
+    }
+
+    CircuitPlayground.clearPixels();
+    delay(100);
+
+    //Taking in the input from the player to copy the sequence from value 1 to the most recent
+    for(int k = 0; k <= i; ++k){
+
+      //Setting the action and correct action
+      action = false;
+      actionCor = true;
+
+      //checking if the player has inputted a full action
+      do{
+
+        //Constantly checking the inputted position values
+        if(delay_2s.isExpired()){
+
+          //calling position input and setting the values
+          positionInput();
+          positionXIn[k] = X;
+          positionYIn[k] = Y;
+          delay(200);
+        }
+        delay(100);
+
+        //if the values are not in range, check for new values
+        if(((positionXIn[k] > -4) && (positionXIn[k] < 4))&&((positionYIn[k] > -2.5) && (positionYIn[k] < 2.5))){
+          delay_2s.repeat();
+        }
+
+        //call action check and then check if the action was correct
+        actionCheck(positionXIn[k], positionYIn[k], action);
+        if(action){
+          positionCheck(positionXIn[k], positionYIn[k], positionX[k], positionY[k], actionCor);
+        }
+
+        //stop the loop if the action was incorrect
+        if(!actionCor){
+          break;
+        }
+        delay(250);
+        CircuitPlayground.clearPixels();
+      }while(!action);
+
+      if(!actionCor){
+        break;
+      }
+    }
+
+    if(!actionCor){
+      break;
+    }
+  }
+  //Check the action and output if they won or not
+  if(!actionCor){
+    CircuitPlayground.speaker.say(spTRY_AGAIN);
+  }
+  else{
+    CircuitPlayground.speaker.say(spYOU_WIN);
+  }
+}
+
+//The input for the difficulty of the game based off of the left and right button
+int difficulty() {
+  //Setting difficulty to 0
+  dif = 0;
+
+  //Setting the correct buttons based off of orientation
+  leftButtonPressed = CircuitPlayground.rightButton();
+  rightButtonPressed = CircuitPlayground.leftButton();
+
+  //Setting difficulty based off of buttons and returning difficutly
+  if(leftButtonPressed){
+    dif = 5;
+  }
+  else if (rightButtonPressed){
+    dif = 10;
+  }
+  else if (rightButtonPressed && leftButtonPressed){
+    dif = 15;
+  }
+  return dif;
+}
+
+//The position of lights during the sequence and the tone played when the lights appear
+float position(int randPosVal) {
+  //position of the lights for the sequence, based on accelorometer
+  //8 is maxium for right, -8 is maximum for left, -5 is maxium for up, 5 is maximum for down
+  //Setting the pattern X and Y to 0
+  patX = 0;
+  patY= 0;
+
+  //Setting the pattern position based off of the pattern value as well as setting the LEDs and tone
+  if (randPosVal == 0){
+    //pattern is to the right
+    patX = 4;
+    patY = 0;
+    CircuitPlayground.setPixelColor(1, 255, 0, 0);
+    CircuitPlayground.setPixelColor(2, 255, 0, 0);
+    CircuitPlayground.setPixelColor(3, 255, 0, 0);
+    CircuitPlayground.playTone(midi[c_major[0]], 200);
+  }
+  else if(randPosVal == 1){
+    //pattern is to the left
+    patX = -4;
+    patY = 0;
+    CircuitPlayground.setPixelColor(6, 0, 255, 0);
+    CircuitPlayground.setPixelColor(7, 0, 255, 0);
+    CircuitPlayground.setPixelColor(8, 0, 255, 0);
+    CircuitPlayground.playTone(midi[c_major[1]], 200);
+  }
+  else if(randPosVal == 2){
+    //pattern is up
+    patY = -2.5;
+    patX = 0;
+    CircuitPlayground.setPixelColor(4, 0, 0, 255);
+    CircuitPlayground.setPixelColor(5, 0, 0, 255);
+    CircuitPlayground.playTone(midi[c_major[3]], 200);
+  }
+  else if(randPosVal == 3){
+    //pattern is down
+    patY = 2.5;
+    patX = 0;
+    CircuitPlayground.setPixelColor(0, 255, 125, 0);
+    CircuitPlayground.setPixelColor(9, 255, 125, 0);
+    CircuitPlayground.playTone(midi[c_major[2]], 200);
+
+  }
+
+  //returning the X and Y values for the pattern
+  return patX, patY;
+}
+
+//The input for position when copying the sequence, showing the lights and a tone played
+float positionInput() {
+  //input for the accelorometer
+  X = 0;
+  Y = 0;
+  for (int i=0; i<10; i++) {
+    X += CircuitPlayground.motionX();
+    Y += CircuitPlayground.motionY();
+    delay(1);
+  }
+
+  //getting an average value from the accelerometer for a more accurate value
+  X /= 10;
+  Y /= 10;
+
+  //setting the lights and tone based off of postion from the accelerometers range
+  if (X >= 4){
+    //pattern is to the right
+    CircuitPlayground.setPixelColor(1, 255, 0, 0);
+    CircuitPlayground.setPixelColor(2, 255, 0, 0);
+    CircuitPlayground.setPixelColor(3, 255, 0, 0);
+    CircuitPlayground.playTone(midi[c_major[0]], 200);
+  }
+  else if(X <= -4){
+    //pattern is to the left
+    CircuitPlayground.setPixelColor(6, 0, 255, 0);
+    CircuitPlayground.setPixelColor(7, 0, 255, 0);
+    CircuitPlayground.setPixelColor(8, 0, 255, 0);
+    CircuitPlayground.playTone(midi[c_major[1]], 200);
+  }
+  else if(Y <= -2.5){
+    //pattern is up
+    CircuitPlayground.setPixelColor(4, 0, 0, 255);
+    CircuitPlayground.setPixelColor(5, 0, 0, 255);
+    CircuitPlayground.playTone(midi[c_major[3]], 200);
+  }
+  else if(Y >= 2.5){
+    //pattern is down
+    CircuitPlayground.setPixelColor(0, 255, 125, 0);
+    CircuitPlayground.setPixelColor(9, 255, 125, 0);
+    CircuitPlayground.playTone(midi[c_major[2]], 200);
+  }
+
+  //returning the X and Y inputted values
+  return X, Y;
+}
+
+//Checking if the player had done an action and if it was in the range for the sequence or not
+void actionCheck(float curX, float curY, bool& action) {
+  
+  //Checking if the current X and Y values are in the range
+  if(curX < -4 || curX > 4){
+    action = true;
+  }
+  if(curY < -2.5 || curY > 2.5){
+    action = true;
+  }
+}
+
+//Checking if the action was correct based off of the players input
+void positionCheck(float curX, float curY, float tempX, float tempY, bool& actionCor) {
+  
+  //Comparing the current X and Y value based on the pattern X and Y values and stating if the action was correct or not
+  if(tempX < 0){
+    if(curX <= tempX){
+      actionCor = true;
+    }
+    else{
+      actionCor = false;
+    }
+  }
+  else if (tempX > 0){
+    if(curX >= tempX){
+      actionCor = true;
+    }
+    else{
+      actionCor = false;
+    }
+  }
+
+  if(tempY < 0){
+    if(curY <= tempY){
+      actionCor = true;
+    }
+    else{
+      actionCor = false;
+    }
+  }
+  else if (tempY > 0){
+    if(curY >= tempY){
+      actionCor = true;
+    }
+    else{
+      actionCor = false;
+    }
+  }
+}
+
+//generation of tones and midi values
+void generateMIDI() {
+  for (int x = 0; x < 127; ++x)
+  {
+    midi[x] = (A_four / 32.0) * pow(2.0, ((x - 9.0) / 12.0));
+  }
+}
